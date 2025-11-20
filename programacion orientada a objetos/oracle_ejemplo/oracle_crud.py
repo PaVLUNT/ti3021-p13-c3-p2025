@@ -221,31 +221,200 @@ def create_mascotas(
 
 # Read - Consulta de datos
 def read_aves():
-    pass
+    sql = (
+        "SELECT * FROM AVES"
+    )
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql)
+                print(f"Consulta a la tabla 'AVES'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_aves_by_id():
-    pass
+    sql = (
+        "SELECT * FROM AVES WHERE id_ave = :id"
+    )
+
+    parametros = {"id": id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql,parametros)
+                print(f"Consulta a la tabla 'AVES' por 'ID_AVE'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_gatos():
-    pass
+    sql = (
+        "SELECT * FROM GATOS"
+    )
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql)
+                print(f"Consulta a la tabla 'GATOS'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_gatos_by_id():
-    pass
+    sql = (
+        "SELECT * FROM GATOS WHERE id_gato = :id"
+    )
+
+    parametros = {"id": id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql,parametros)
+                print(f"Consulta a la tabla 'GATOS' por 'ID_GATO'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_historial_medico():
-    pass
+    sql = (
+        "SELECT * FROM HISTORIAL_MEDICO"
+    )
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql)
+                print(f"Consulta a la tabla 'HISTORIAL_MEDICO'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_historial_medico_by_id():
-    pass
+    sql = (
+        "SELECT * FROM HISTORIAL_MEDICO WHERE id_historial = :id"
+    )
+
+    parametros = {"id": id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql,parametros)
+                print(f"Consulta a la tabla 'HISTORIAL_MEDICO' por 'ID_HISTORIAL'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_mascotas():
-    pass
+    sql = (
+        "SELECT * FROM MASCOTAS"
+    )
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql)
+                print(f"Consulta a la tabla 'MASCOTAS'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_mascotas_by_id():
-    pass
+    sql = (
+        "SELECT * FROM MASCOTAS WHERE id = :id"
+    )
+
+    parametros = {"id": id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql,parametros)
+                print(f"Consulta a la tabla 'MASCOTAS' por 'ID'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_perros():
-    pass
+    sql = (
+        "SELECT * FROM PERROS"
+    )
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql)
+                print(f"Consulta a la tabla 'PERROS'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
 
 def read_perros_by_id():
-    pass
+    sql = (
+        "SELECT * FROM PERROS WHERE id_perro = :id"
+    )
+
+    parametros = {"id": id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                resultados = cur.execute(sql,parametros)
+                print(f"Consulta a la tabla 'AVES' por 'ID_AVE'")
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
+
+from typing import Optional
+
+def update_perros(id, nombre: Optional[str] = None, edad: Optional[str] = None, historial_vacunas: Optional[str] = None):
+    modificaciones = []
+    binds  = {"id_perro": id}
+
+    if id is not None:
+        modificaciones.append("id_perro =: id")
+        binds["id_perro"] = id
+    
+    if nombre is not None:
+        modificaciones.append("nombre =: nombre")
+        binds["nombre"] = nombre
+    
+    if edad is not None:
+        modificaciones.append("edad =: edad")
+        binds["edad"] = edad
+    
+    if historial_vacunas is not None:
+        modificaciones.append("historial_vacuna =: historial_vacunas")
+        binds["historial_vacunas"] = datetime.strptime(historial_vacunas, "%Y-%m-%d")
+    
+    if not modificaciones:
+        print("No hay campo para actualizar.")
+        return
+    
+    sql = f"UPDATE PERROS SET {",".join(modificaciones)} WHERE id_perro =: id"
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, binds)
+        conn.commit()
+        print(f"Perro con ID={id} actualizado.")
