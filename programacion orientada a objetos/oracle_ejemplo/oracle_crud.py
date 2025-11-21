@@ -56,25 +56,13 @@ tables = [
             "observaciones VARCHAR(100),"
             "tratamientos VARCHAR(200)"
             ")"
-        ),
-        (
-            "CREATE TABLE MASCOTAS ("
-            "id INTEGER PRIMARY KEY,"
-            "especie VARCHAR(10),"
-            "fecha_consulta DATE,"
-            "idPerro INTEGER,"
-            "idGato INTEGER,"
-            "idAve INTEGER,"
-            "FOREIGN KEY (idPerro) REFERENCES PERROS (id_perro),"
-            "FOREIGN KEY (idGato) REFERENCES GATOS (id_gato),"
-            "FOREIGN KEY (idAve) REFERENCES AVES (id_ave)"
-            ")"
         )
 ]
 
 for query in tables:
     create_schema(query)            
 
+# Create - Crear tablas
 
 def create_perro(
         id_perro:int,
@@ -187,39 +175,8 @@ def create_HMedico(
         err = e
         print(f"No se pudo insertar el dato: {err} \n {parametros}")
 
-
-def create_mascotas(
-        id:int,
-        especie:str,
-        fechaconsulta:datetime,
-        idPerro:int,
-        idGato:int,
-        idAve:int,
-):
-    sql = (
-        "INSERT INTO MASCOTAS (id, especie, fechaconsulta, idPerro, idGato, idAve)"
-        "VALUES (:id, :especie, :fechaconsulta, :idPerro, :idGato, :idAve)"
-    )
-    parametros = {
-        "id": id,
-        "especie": especie,
-        "fechaconsulta" : fechaconsulta,
-        "idPerro" : idPerro,
-        "idGato" : idGato,
-        "idAve" : idAve
-    }
-
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql,parametros)
-                print(f"Dato insertado. \n {parametros}")
-            conn.commit()
-    except oracledb.DatabaseError as e:
-        err = e
-        print(f"No se pudo insertar el dato: {err} \n {parametros}")
-
 # Read - Consulta de datos
+
 def read_aves():
     sql = (
         "SELECT * FROM AVES"
@@ -319,39 +276,6 @@ def read_historial_medico_by_id():
         err = e
         print(f"Error al insertar datos: {err}")
 
-def read_mascotas():
-    sql = (
-        "SELECT * FROM MASCOTAS"
-    )
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                resultados = cur.execute(sql)
-                print(f"Consulta a la tabla 'MASCOTAS'")
-                for fila in resultados:
-                    print(fila)
-    except oracledb.DatabaseError as e:
-        err = e
-        print(f"Error al insertar datos: {err}")
-
-def read_mascotas_by_id():
-    sql = (
-        "SELECT * FROM MASCOTAS WHERE id = :id"
-    )
-
-    parametros = {"id": id}
-
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                resultados = cur.execute(sql,parametros)
-                print(f"Consulta a la tabla 'MASCOTAS' por 'ID'")
-                for fila in resultados:
-                    print(fila)
-    except oracledb.DatabaseError as e:
-        err = e
-        print(f"Error al insertar datos: {err}")
-
 def read_perros():
     sql = (
         "SELECT * FROM PERROS"
@@ -387,6 +311,8 @@ def read_perros_by_id():
 
 from typing import Optional
 
+# Update - Actualizar datos
+
 def update_perros(id, nombre: Optional[str] = None, edad: Optional[str] = None, historial_vacunas: Optional[str] = None):
     modificaciones = []
     binds  = {"id_perro": id}
@@ -404,7 +330,7 @@ def update_perros(id, nombre: Optional[str] = None, edad: Optional[str] = None, 
         binds["edad"] = edad
     
     if historial_vacunas is not None:
-        modificaciones.append("historial_vacuna =: historial_vacunas")
+        modificaciones.append("historial_vacunas =: historial_vacunas")
         binds["historial_vacunas"] = datetime.strptime(historial_vacunas, "%Y-%m-%d")
     
     if not modificaciones:
@@ -418,3 +344,155 @@ def update_perros(id, nombre: Optional[str] = None, edad: Optional[str] = None, 
             cur.execute(sql, binds)
         conn.commit()
         print(f"Perro con ID={id} actualizado.")
+
+def update_gatos(id, nombre: Optional[str] = None, edad: Optional[str] = None, esterilizado: Optional[str] = None):
+    modificaciones = []
+    binds  = {"id_gatp": id}
+
+    if id is not None:
+        modificaciones.append("id_gato =: id")
+        binds["id_gato"] = id
+    
+    if nombre is not None:
+        modificaciones.append("nombre =: nombre")
+        binds["nombre"] = nombre
+    
+    if edad is not None:
+        modificaciones.append("edad =: edad")
+        binds["edad"] = edad
+    
+    if esterilizado is not None:
+        modificaciones.append("esterilizado =: esterilizado")
+        binds["esterilizado"] = esterilizado
+    
+    if not modificaciones:
+        print("No hay campo para actualizar.")
+        return
+    
+    sql = f"UPDATE GATOS SET {",".join(modificaciones)} WHERE id_gato =: id"
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, binds)
+        conn.commit()
+        print(f"Gato con ID={id} actualizado.")
+
+# Delete - Eliminacion de datos
+
+def delete_perros(id: int):
+    sql = (
+        "DELETE FROM PERROS WHERE id_perro = :id"
+    )
+
+    parametros  = {"id" : id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql,parametros)
+            conn.commit()
+            print(f"Dato eliminado \n {parametros}")
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
+
+def delete_gatos(id: int):
+    sql = (
+        "DELETE FROM GATOS WHERE id_gato = :id"
+    )
+
+    parametros = {"id" : id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql,parametros)
+            conn.commit()
+            print(f"Dato eliminado \n {parametros}")
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
+
+def delete_aves(id: int):
+    sql = (
+        "DELETE FROM AVES WHERE id_ave = :id"
+    )
+
+    parametros = {"id" : id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql,parametros)
+            conn.commit()
+            print(f"Dato eliminado \n {parametros}")
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
+
+def delete_historial_medico(id: int):
+    sql = (
+        "DELETE FROM HISTORIAL_MEDICO WHERE id_historial = :id"
+    )
+
+    parametros = {"id" : id}
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql,parametros)
+            conn.commit()
+            print(f"Dato eliminado \n {parametros}")
+    except oracledb.DatabaseError as e:
+        err = e
+        print(f"Error al insertar datos: {err}")
+
+def main():
+    while True:
+        print(
+            """
+            ===========================================
+            |         ☺ CRUD CON ORACLESQL ☺          |
+            ===========================================
+            | 1. APLICAR ESQUEMA EN LA BASE DE DATOS  |
+            | 2. TABLA PERROS                         |
+            | 3. TABLA GATOS                          |
+            | 4. TABLA AVES                           |
+            | 5. TABLA HISTORIAL MEDICO               |
+            | 0. SALIR                                |
+            ===========================================
+            """
+        )
+        opcion = input("Selecciona una opcion [1-5, 0 para salir]: ")
+
+        if opcion == "0":
+            os.system("cls")
+            print("Volviendo al menú principal. o((>ω< ))o")
+            input("Presiona ENTER para continuar...")
+            break
+        elif opcion == "1":
+            try:
+                id = int(input("Ingrese el id numerico del perro: "))
+                nombre = input("Ingresa el nombre del perro: ")
+                edad = int(input("Ingresa la edad del perro: "))
+                historial_vacunas = input("Ingresa el historial de vacunas: ")
+
+                create_perro(id, nombre, edad, historial_vacunas)
+                input("Presiona ENTER para continuar...")
+            except ValueError:
+                return print("Ingresaste un valor no numerico.")
+        elif opcion == "2":
+            pass
+        elif opcion == "3":
+            pass
+        elif opcion == "4":
+            pass
+        elif opcion == "5":
+            pass
+        else:
+            print("Opcion Invalida.")
+            input("Presiona ENTER para continuar...")
+            break
+
+if __name__ == "__main__":
+    main()
